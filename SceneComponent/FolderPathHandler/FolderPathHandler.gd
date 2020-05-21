@@ -8,9 +8,8 @@ signal path_confirmed(path_to_folder_string)
 #Emitted when there is not a slash at the end of the filename.
 signal path_entered_wrong()
 
-
-#Check that the player inputted slashes.
 #warning-ignore:unused_argument
+#Check that the player inputted slashes.
 func _process(delta : float) -> void :
 	#Return if there is no text inputted.
 	if path_holder.text == "" :

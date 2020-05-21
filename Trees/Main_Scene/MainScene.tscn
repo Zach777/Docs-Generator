@@ -9,7 +9,7 @@
 anchor_left = 0.08
 anchor_top = 0.2
 anchor_right = 0.92
-anchor_bottom = 1.0
+anchor_bottom = 0.3
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource( 3 )
@@ -18,7 +18,9 @@ __meta__ = {
 }
 
 [node name="FolderPathHandler" parent="." instance=ExtResource( 1 )]
+anchor_bottom = 0.0
 margin_right = 860.0
+margin_bottom = 60.0
 
 [node name="DocLoader" parent="." instance=ExtResource( 2 )]
 

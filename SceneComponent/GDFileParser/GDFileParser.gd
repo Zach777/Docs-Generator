@@ -4,7 +4,6 @@ extends Node
 #File for testing out file loading.
 var file_to_save : File = File.new()
 
-#The docs should have this in their description.
 func _init() -> void :
 	#warning-ignore:return_value_discarded
 	file_to_save.open("res://Saved", file_to_save.WRITE_READ)
@@ -37,7 +36,7 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 				file_to_save.store_line(stored_comment)
 				file_to_save.store_line(line)
 				file_to_save.store_line("")
-			elif line.begins_with("warning-ignore:") :
+			elif line.begins_with("#warning-ignore") :
 				#Skip past warning ignores.
 				pass
 		

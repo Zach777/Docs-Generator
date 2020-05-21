@@ -1,6 +1,7 @@
 extends VBoxContainer
 
 
+#Player confirmed what directory to search.
 func _path_confirmed(path_to_folder_string : String) -> void:
 	var file_array : Array
 	file_array = $RecursiveGDFileGetter.list_all_gd_files_from_directory_relative(path_to_folder_string)

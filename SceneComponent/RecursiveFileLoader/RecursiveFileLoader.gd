@@ -23,7 +23,7 @@ func list_all_gd_files_from_directory_relative(directory_path : String) -> Array
 			new_array = list_all_gd_files_from_directory_relative(directory_path + current)
 			
 			var pos : int = 0
-			while pos < new_array.size() - 1 :
+			while pos < new_array.size() :
 				new_array[pos] = current + new_array[pos]
 				dir_array.append(new_array[pos])
 				pos += 1
