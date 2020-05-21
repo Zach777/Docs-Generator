@@ -31,7 +31,7 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 		
 		#Generate input for doc if the next line is a func or export.
 		if last_line_was_comment :
-			if line.begins_with("func") || line.begins_with("export") :
+			if _text_has_keywords(line) :
 				#Generate doc data.
 				file_to_save.store_line(stored_comment)
 				file_to_save.store_line(line)
@@ -44,8 +44,22 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 				last_line_was_comment = false
 		
 		#Check if the line is a comment.
-		if line.begins_with("#") :
+		elif line.begins_with("#") && line.begins_with("#warning-ignore") == false :
 			last_line_was_comment = true
 			stored_comment = line
 	
 	file_loader.close()
+
+#Checks to see if the text has important keywords.
+func _text_has_keywords(text_to_check : String) -> bool :
+	if( text_to_check.begins_with("func") || 
+			text_to_check.begins_with("export") ||
+			text_to_check.begins_with("signal")) :
+		return true
+	
+	return false
+	
+	
+	
+	
+	
