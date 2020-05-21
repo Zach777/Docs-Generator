@@ -2,7 +2,6 @@ extends Node
 
 
 #File for testing out file loading.
-var file_loader : File = File.new()
 var file_to_save : File = File.new()
 
 #The docs should have this in their description.
@@ -10,9 +9,17 @@ func _init() -> void :
 	#warning-ignore:return_value_discarded
 	file_to_save.open("res://Saved", file_to_save.WRITE_READ)
 
+#Close the save file so that everything is written.
+func close_save_file() -> void :
+	file_to_save.close()
+
 #Actually parse the file.
 func generate_doc_from_gd(gd_file_path : String) -> void :
+	#Go ahead and save the file's name.
+	file_to_save.store_line(gd_file_path.get_file())
+	
 	#warning-ignore:return_value_discarded
+	var file_loader : File = File.new()
 	file_loader.open(gd_file_path, file_loader.READ)
 	
 	#Generate a doc.

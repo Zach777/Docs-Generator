@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://SceneComponent/FolderPathHandler/FolderPathHandler.gd" type="Script" id=1]
+
+[node name="FolderPathHandler" type="HBoxContainer"]
+margin_right = 58.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+alignment = 1
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PathToFolder" type="LineEdit" parent="."]
+margin_right = 58.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+placeholder_text = "System global path to folder"
+
+[node name="Confirm" type="Button" parent="."]
+margin_left = 62.0
+margin_right = 93.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "OK"
+[connection signal="pressed" from="Confirm" to="." method="_on_Confirm_pressed"]
