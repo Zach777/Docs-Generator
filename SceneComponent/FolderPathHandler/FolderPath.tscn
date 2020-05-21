@@ -2,27 +2,45 @@
 
 [ext_resource path="res://SceneComponent/FolderPathHandler/FolderPathHandler.gd" type="Script" id=1]
 
-[node name="FolderPathHandler" type="HBoxContainer"]
-margin_right = 58.0
-margin_bottom = 24.0
+[node name="FolderPathHandler" type="VBoxContainer"]
+anchor_bottom = 0.2
 size_flags_horizontal = 3
+size_flags_vertical = 3
 alignment = 1
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="PathToFolder" type="LineEdit" parent="."]
+[node name="InputField" type="HBoxContainer" parent="."]
+margin_top = 48.0
+margin_right = 93.0
+margin_bottom = 72.0
+
+[node name="PathToFolder" type="LineEdit" parent="InputField"]
 margin_right = 58.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 4.0
 placeholder_text = "System global path to folder"
+caret_blink = true
+caret_blink_speed = 0.5
 
-[node name="Confirm" type="Button" parent="."]
+[node name="Confirm" type="Button" parent="InputField"]
 margin_left = 62.0
 margin_right = 93.0
 margin_bottom = 24.0
 size_flags_horizontal = 3
 text = "OK"
-[connection signal="pressed" from="Confirm" to="." method="_on_Confirm_pressed"]
+
+[node name="PathIncorrectMessage" type="RichTextLabel" parent="."]
+visible = false
+modulate = Color( 1, 0.00392157, 0.00392157, 1 )
+margin_top = 28.0
+margin_right = 93.0
+margin_bottom = 120.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
+text = "Please append a '/' or '\\' at the end."
+scroll_active = false
+[connection signal="pressed" from="InputField/Confirm" to="." method="_on_Confirm_pressed"]
