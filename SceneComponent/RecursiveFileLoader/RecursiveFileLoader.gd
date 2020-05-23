@@ -18,7 +18,7 @@ func list_all_gd_files_from_directory_relative(directory_path : String) -> Array
 		#Recursively travel into subdirectories.
 		if dir.current_is_dir() :
 			#Append a slash at the end of current.
-			current += s()
+			current += directory_path.right(directory_path.length() - 1)
 			var new_array : Array
 			new_array = list_all_gd_files_from_directory_relative(directory_path + current)
 			
@@ -28,7 +28,6 @@ func list_all_gd_files_from_directory_relative(directory_path : String) -> Array
 				dir_array.append(new_array[pos])
 				pos += 1
 			
-		
 		#Append any gd files to dir_array
 		elif current.ends_with(".gd") :
 			var relative_path_to_gd_file : String = current
@@ -38,7 +37,3 @@ func list_all_gd_files_from_directory_relative(directory_path : String) -> Array
 		current = dir.get_next()
 	
 	return dir_array
-
-#Return the correct slash for the operating system.
-func s() -> String :
-	return "/"
