@@ -1,3 +1,4 @@
+tool
 extends VBoxContainer
 
 onready var path_holder : LineEdit = $InputField/PathToFolder

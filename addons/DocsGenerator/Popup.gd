@@ -1,3 +1,4 @@
+tool
 extends Popup
 
 signal popup_closed()
