@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Trees/Main_Scene/MainScene.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/DocsGenerator/Popup.gd" type="Script" id=2]
+
+[node name="Popup" type="Popup"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 2 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+anchor_left = 0.2
+anchor_top = 0.4
+anchor_right = 0.8
+anchor_bottom = 0.4
+margin_right = 40.0
+margin_bottom = 40.0
+
+[node name="Root" parent="VBoxContainer" instance=ExtResource( 1 )]
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+margin_right = 654.0
+margin_bottom = 24.0
+
+[node name="Button" type="Button" parent="VBoxContainer"]
+margin_top = 28.0
+margin_right = 654.0
+margin_bottom = 48.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+[connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_Button_pressed"]
