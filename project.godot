@@ -16,7 +16,6 @@ _global_script_class_icons={
 [application]
 
 config/name="Docs Generator"
-run/main_scene="res://Trees/Main_Scene/MainScene.tscn"
 config/icon="res://icon.png"
 
 [display]

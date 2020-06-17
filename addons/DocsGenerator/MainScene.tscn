@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://Trees/Main_Scene/MainScene.tscn" type="PackedScene" id=1]
+[ext_resource path="res://addons/DocsGenerator/helpers/FolderPathHandler.gd" type="Script" id=1]
 [ext_resource path="res://addons/DocsGenerator/Popup.gd" type="Script" id=2]
+[ext_resource path="res://addons/DocsGenerator/helpers/Manager.gd" type="Script" id=3]
+[ext_resource path="res://addons/DocsGenerator/helpers/GDFileParser.gd" type="Script" id=4]
+[ext_resource path="res://addons/DocsGenerator/helpers/RecursiveFileLoader.gd" type="Script" id=5]
 
 [node name="Popup" type="Popup"]
 anchor_right = 1.0
@@ -19,13 +22,65 @@ anchor_bottom = 0.4
 margin_right = 40.0
 margin_bottom = 40.0
 
-[node name="Root" parent="VBoxContainer" instance=ExtResource( 1 )]
-anchor_left = 0.0
-anchor_top = 0.0
-anchor_right = 0.0
-anchor_bottom = 0.0
+[node name="Root" type="VBoxContainer" parent="VBoxContainer"]
 margin_right = 654.0
 margin_bottom = 24.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FolderPathHandler" type="VBoxContainer" parent="VBoxContainer/Root"]
+margin_right = 860.0
+margin_bottom = 60.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="InputField" type="HBoxContainer" parent="VBoxContainer/Root/FolderPathHandler"]
+margin_top = 48.0
+margin_right = 93.0
+margin_bottom = 72.0
+
+[node name="PathToFolder" type="LineEdit" parent="VBoxContainer/Root/FolderPathHandler/InputField"]
+margin_right = 58.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 4.0
+text = "res://"
+placeholder_text = "System global path to folder"
+caret_blink = true
+caret_blink_speed = 0.5
+
+[node name="Confirm" type="Button" parent="VBoxContainer/Root/FolderPathHandler/InputField"]
+margin_left = 62.0
+margin_right = 93.0
+margin_bottom = 24.0
+size_flags_horizontal = 3
+text = "OK"
+
+[node name="PathIncorrectMessage" type="RichTextLabel" parent="VBoxContainer/Root/FolderPathHandler"]
+visible = false
+modulate = Color( 1, 0.00392157, 0.00392157, 1 )
+margin_top = 28.0
+margin_right = 93.0
+margin_bottom = 120.0
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.5
+text = "Please append a '/' or '\\' at the end."
+scroll_active = false
+
+[node name="GDFileParser" type="Node" parent="VBoxContainer/Root"]
+script = ExtResource( 4 )
+
+[node name="RecursiveGDFileGetter" type="Node" parent="VBoxContainer/Root"]
+script = ExtResource( 5 )
 
 [node name="Button" type="Button" parent="VBoxContainer"]
 margin_top = 28.0
@@ -34,4 +89,6 @@ margin_bottom = 48.0
 __meta__ = {
 "_edit_use_anchors_": false
 }
+[connection signal="path_confirmed" from="VBoxContainer/Root/FolderPathHandler" to="VBoxContainer/Root" method="_path_confirmed"]
+[connection signal="pressed" from="VBoxContainer/Root/FolderPathHandler/InputField/Confirm" to="VBoxContainer/Root/FolderPathHandler" method="_on_Confirm_pressed"]
 [connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_Button_pressed"]
