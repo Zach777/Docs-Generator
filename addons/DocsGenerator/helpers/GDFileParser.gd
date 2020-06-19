@@ -1,23 +1,26 @@
 tool
 extends Node
 
-var FILE_TYPE : String = ".docsave"
-var FOLDER_NAME : String = "Docsaves/"
-
+const FILE_TYPE : String = ".docsave"
 
 #File for testing out file loading.
 var file_to_save : File = File.new()
-var save_location : String = "res://addons/DocsGenerator/" + FOLDER_NAME
+var save_location : String = "res://addons/DocsGenerator/"
 
 
 #Actually parse the file.
 func generate_doc_from_gd(gd_file_path : String) -> void :
 	#Open the file for writing.
 	_update_save_location(save_location)
+	if _does_save_location_exists() == false :
+		return
+	
+	#Create the docs file.
 	var file_name : String = gd_file_path.get_file()
 	file_name = file_name.left(file_name.find(".", 0))
 	file_name += FILE_TYPE #Add the file extension on the end.
 	file_to_save.open(save_location + file_name, file_to_save.WRITE_READ)
+	print("We are creating the file " + (save_location + file_name))
 	
 	#Go ahead and save the file's name.
 	file_to_save.store_line(gd_file_path.get_file())
@@ -56,6 +59,16 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 	file_loader.close()
 	file_to_save.close()
 
+#Create directory where docs get saved if it does not exist.
+func _does_save_location_exists() -> bool :
+	#Create the folder if it does not exist.
+	var dir : Directory = Directory.new()
+	if dir.dir_exists(save_location) == false :
+		print("GDFileParser.gd could not find the directory " + save_location)
+		return false
+	
+	return true
+
 #Checks to see if the text has important keywords.
 func _text_has_keywords(text_to_check : String) -> bool :
 	if( text_to_check.begins_with("func") || 
@@ -69,9 +82,6 @@ func _text_has_keywords(text_to_check : String) -> bool :
 func _update_save_location(new_save_location_string):
 	if new_save_location_string != save_location :
 		print("GDFileParser.gd updated save location")
-		save_location = new_save_location_string + FOLDER_NAME
+		save_location = new_save_location_string
 	
-	#Create the folder if it does not exist.
-	var dir : Directory = Directory.new()
-	if dir.dir_exists(save_location) == false :
-		dir.make_dir(save_location)
+	
