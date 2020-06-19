@@ -8,5 +8,3 @@ func _path_confirmed(path_to_folder_string : String) -> void:
 	file_array = $RecursiveGDFileGetter.list_all_gd_files_from_directory_relative(path_to_folder_string)
 	for gd_file in file_array :
 		$GDFileParser.generate_doc_from_gd(path_to_folder_string + gd_file)
-	
-	$GDFileParser.close_save_file()

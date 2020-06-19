@@ -1,23 +1,24 @@
 tool
 extends Node
 
-var FILENAME : String = "Saved.docsave"
+var FILE_TYPE : String = ".docsave"
+var FOLDER_NAME : String = "Docsaves/"
 
 
 #File for testing out file loading.
 var file_to_save : File = File.new()
-var save_location : String = "res://addons/DocsGenerator/" + FILENAME
+var save_location : String = "res://addons/DocsGenerator/" + FOLDER_NAME
 
-
-#Close the save file so that everything is written.
-func close_save_file() -> void :
-	file_to_save.close()
 
 #Actually parse the file.
 func generate_doc_from_gd(gd_file_path : String) -> void :
-	#Check that the file is open. If it is not, then open it.
-	if file_to_save.is_open() == false :
-		file_to_save.open(save_location, file_to_save.WRITE_READ)
+	#Open the file for writing.
+	_update_save_location(save_location)
+	var file_name : String = gd_file_path.get_file()
+	file_name = file_name.left(file_name.find(".", 0))
+	file_name += FILE_TYPE #Add the file extension on the end.
+	file_to_save.open(save_location + file_name, file_to_save.WRITE_READ)
+	
 	#Go ahead and save the file's name.
 	file_to_save.store_line(gd_file_path.get_file())
 	
@@ -53,6 +54,7 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 			stored_comment = line
 	
 	file_loader.close()
+	file_to_save.close()
 
 #Checks to see if the text has important keywords.
 func _text_has_keywords(text_to_check : String) -> bool :
@@ -63,8 +65,13 @@ func _text_has_keywords(text_to_check : String) -> bool :
 	
 	return false
 
+#Prepare to save files in a new location.
 func _update_save_location(new_save_location_string):
-	print("Updated save location")
-	save_location = new_save_location_string + FILENAME
-	file_to_save.close()
-	file_to_save.open(save_location, file_to_save.WRITE_READ)
+	if new_save_location_string != save_location :
+		print("GDFileParser.gd updated save location")
+		save_location = new_save_location_string + FOLDER_NAME
+	
+	#Create the folder if it does not exist.
+	var dir : Directory = Directory.new()
+	if dir.dir_exists(save_location) == false :
+		dir.make_dir(save_location)
