@@ -1,13 +1,13 @@
 tool
 extends Node
 
+var FILENAME : String = "Saved.docsave"
+
 
 #File for testing out file loading.
 var file_to_save : File = File.new()
+var save_location : String = "res://addons/DocsGenerator/" + FILENAME
 
-func _init() -> void :
-	#warning-ignore:return_value_discarded
-	file_to_save.open("res://Saved", file_to_save.WRITE_READ)
 
 #Close the save file so that everything is written.
 func close_save_file() -> void :
@@ -15,6 +15,9 @@ func close_save_file() -> void :
 
 #Actually parse the file.
 func generate_doc_from_gd(gd_file_path : String) -> void :
+	#Check that the file is open. If it is not, then open it.
+	if file_to_save.is_open() == false :
+		file_to_save.open(save_location, file_to_save.WRITE_READ)
 	#Go ahead and save the file's name.
 	file_to_save.store_line(gd_file_path.get_file())
 	
@@ -59,8 +62,9 @@ func _text_has_keywords(text_to_check : String) -> bool :
 		return true
 	
 	return false
-	
-	
-	
-	
-	
+
+func _update_save_location(new_save_location_string):
+	print("Updated save location")
+	save_location = new_save_location_string + FILENAME
+	file_to_save.close()
+	file_to_save.open(save_location, file_to_save.WRITE_READ)
