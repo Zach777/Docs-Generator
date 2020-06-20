@@ -45,4 +45,4 @@ export.cfg
 ############################
 !_exports/.gitignore
 .vscode/
-Saved
+addons/DocsGenerator/SaveLocation.sav
