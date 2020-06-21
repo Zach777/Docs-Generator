@@ -3,27 +3,19 @@ extends Node
 
 const FILE_TYPE : String = ".docsave"
 
-#File for testing out file loading.
-var file_to_save : File = File.new()
-var save_location : String = "res://addons/DocsGenerator/"
+var save_location : String = "res://addons/DocsGenerator/DocSaves/"
 
 
 #Actually parse the file.
 func generate_doc_from_gd(gd_file_path : String) -> void :
 	#Open the file for writing.
 	_update_save_location(save_location)
-	if _does_save_location_exists() == false :
+	if _does_save_location_exist() == false :
+		print("Save location " + save_location + " does not exist")
 		return
 	
-	#Create the docs file.
-	var file_name : String = gd_file_path.get_file()
-	file_name = file_name.left(file_name.find(".", 0))
-	file_name += FILE_TYPE #Add the file extension on the end.
-	file_to_save.open(save_location + file_name, file_to_save.WRITE_READ)
-	print("We are creating the file " + (save_location + file_name))
-	
-	#Go ahead and save the file's name.
-	file_to_save.store_line(gd_file_path.get_file())
+	#Create a string that will be saved to the file.
+	var save_string : String = gd_file_path + "\n"
 	
 	#warning-ignore:return_value_discarded
 	var file_loader : File = File.new()
@@ -41,9 +33,9 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 		if last_line_was_comment :
 			if _text_has_keywords(line) :
 				#Generate doc data.
-				file_to_save.store_line(stored_comment)
-				file_to_save.store_line(line)
-				file_to_save.store_line("")
+				save_string += (stored_comment + "\n")
+				save_string += (line + "\n")
+				save_string += "\n"
 			elif line.begins_with("#warning-ignore") :
 				#Skip past warning ignores.
 				pass
@@ -56,11 +48,20 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 			last_line_was_comment = true
 			stored_comment = line
 	
+	#Create the docs file.
+	var file_name : String = gd_file_path.get_file()
+	file_name = file_name.left(file_name.find(".", 0))
+	file_name += FILE_TYPE #Add the file extension on the end.
+	var file_to_save : File = File.new()
+	file_to_save.open(save_location + file_name, file_to_save.WRITE_READ)
+	print("We are creating the file " + (save_location + file_name))
+	file_to_save.store_string(save_string)
+	
 	file_loader.close()
 	file_to_save.close()
 
 #Create directory where docs get saved if it does not exist.
-func _does_save_location_exists() -> bool :
+func _does_save_location_exist() -> bool :
 	#Create the folder if it does not exist.
 	var dir : Directory = Directory.new()
 	if dir.dir_exists(save_location) == false :

@@ -4,7 +4,7 @@ extends HBoxContainer
 
 #Save the location for later.
 const SAVE_LOCATION : String = "res://addons/DocsGenerator/SaveLocation.sav"
-const DEFAULT_PATH : String = "res://addons/DocsGenerator/"
+const DEFAULT_PATH : String = "res://addons/DocsGenerator/DocSaves/"
 
 signal save_location_changed(new_save_location_string)
 
