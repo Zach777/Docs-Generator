@@ -1,6 +1,7 @@
 tool
 extends Node
 
+const EMPTY_COMMENT : String = "Somebody didn't leave a comment."
 const FILE_TYPE : String = ".docsave"
 
 var save_location : String = "res://addons/DocsGenerator/DocSaves/"
@@ -75,6 +76,10 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 			elif store_lines.empty() :
 				last_line_was_comment = false
 		
+		#Store funcs without comments as well.
+		elif line.begins_with("func") :
+			save = _handle_output_formatting(save, section_locations, line + "#" + EMPTY_COMMENT)
+		
 		#Check if the line is a comment.
 		elif line.begins_with("#") && line.begins_with("#warning-ignore") == false :
 			last_line_was_comment = true
@@ -134,9 +139,10 @@ func _handle_output_formatting(output : PoolStringArray,
 								section_locations : Array, text : String) -> PoolStringArray :
 	if text.begins_with("func") :
 		#Get the comment at the end of the function.
-		var comment : String 
-		comment = text.right(text.find("#") + 1)
-		text.erase(text.find("#"), comment.length() + 1)
+		var comment : String  = ""
+		if text.find("#") != -1 :
+			comment = text.right(text.find("#") + 1)
+			text.erase(text.find("#"), comment.length() + 1)
 		
 		#Get the function name.
 		text.erase(0, 4) #Erase the func from the beginning.
