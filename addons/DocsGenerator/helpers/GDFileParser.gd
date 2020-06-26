@@ -1,6 +1,13 @@
 tool
 extends Node
 
+#Definitely go to https://www.markdownguide.org/
+#Search Tables
+#https://www.markdownguide.org/extended-syntax/
+#Hello | Good evening | Good
+#------|--------------|-----
+#What is up | I am good | Oh wow
+
 const EMPTY_COMMENT : String = "Somebody didn't leave a comment."
 const FILE_TYPE : String = ".docsave"
 
@@ -77,7 +84,7 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 				last_line_was_comment = false
 		
 		#Store funcs without comments as well.
-		elif line.begins_with("func") :
+		elif line.begins_with("func ") :
 			save = _handle_output_formatting(save, section_locations, line + "#" + EMPTY_COMMENT)
 		
 		#Check if the line is a comment.
@@ -115,13 +122,13 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 
 #Create a template array for saving documents.
 func _create_template_save_file(path : String) -> PoolStringArray :
-	var save : PoolStringArray = PoolStringArray([path])
-	save.append("Properties")
-	save.append("Methods")
-	save.append("Signals")
-	save.append("Enumerations")
-	save.append("Property Descriptions")
-	save.append("Method Descriptions")
+	var save : PoolStringArray = PoolStringArray(["# " + path])
+	save.append("## Properties")
+	save.append("## Methods")
+	save.append("## Signals")
+	save.append("## Enumerations")
+	save.append("## Property Descriptions")
+	save.append("## Method Descriptions")
 	return save
 
 #Check that the directory where docs get saved exists.
@@ -156,7 +163,7 @@ func _handle_output_formatting(output : PoolStringArray,
 		if type_pointer_at != -1 :
 			return_type = text.right(type_pointer_at + 2)
 			return_type = return_type.dedent()
-			return_type.erase(return_type.find(":"), 1)
+			return_type.erase(return_type.find(":") - 1, 2)
 			text.erase(type_pointer_at, text.right(type_pointer_at).length())
 		else :
 			return_type = "value"
@@ -199,26 +206,51 @@ func _handle_output_formatting(output : PoolStringArray,
 				comma_pos = text.length()
 			text.erase(0, text.left(comma_pos).length())
 		
-		#Write the output.
-		var a : String = return_type + " " + function_name + " ("
+		#Write the output for methods.
+#		var whole : String = return_type + " "
+#		whole += "["+ function_name + "]"+ " ("
+#		var at : int = 0
+#		for argument in arguments :
+#			whole += " " + argument_types[at]
+#			whole += " "
+#			whole += argument
+#			at += 1
+#
+#			#Add whole comma if there are more arguments.
+#			if at < arguments.size() :
+#				whole += ","
+#		whole += " )"
+
+		var hyperlink : String = "(#"+function_name.dedent()
+		var argument_string : String = " ("
 		var at : int = 0
-		for argument in arguments :
-			a += " " + argument_types[at]
-			a += " "
-			a += argument
+		while at < arguments.size() :
+			if at > 0 :
+				argument_string += ","
+			argument_string += " "+argument_types[at]+" "+arguments[at]
 			at += 1
-			
-			#Add a comma if there are more arguments.
-			if at < arguments.size() :
-				a += ","
-		a += " )"
+		argument_string += " )"
+		hyperlink += ")"
+		hyperlink = hyperlink.to_lower()
+		#Make sure hyperlink does not have double -- or spaces.
+		hyperlink = hyperlink.replace("--", "-") 
+		hyperlink = hyperlink.replace(" ", "")
 		
-		output = _store_output(output, section_locations, a, sections.Methods)
-		output = _store_output(output, section_locations, a + "\n" + comment, sections.Method_Descriptions)
+		var whole : String = return_type+" "
+		whole += "["+function_name+"]"+hyperlink+argument_string
+		
+		output = _store_output(output, section_locations, whole, sections.Methods)
+		
+		#Write the output for Method Descriptions.
+		var a : String = "### "+function_name
+		var b : String = "\n"+"- ● "+return_type+function_name+argument_string+"\n\n"+comment
+		var c : String = "\n\n-----\n-----\n"
+		output = _store_output(output, section_locations, a+b+c, sections.Method_Descriptions)
 		
 	
 	return output
 
+#Save output to the save string.
 func _store_output(output : PoolStringArray, section_locations : Array,
 						text : String, where_to_store : int) -> PoolStringArray :
 	var place : int = section_locations[where_to_store]
