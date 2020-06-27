@@ -105,14 +105,23 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 	for string in save :
 		var save_string : String = ""
 		if section_locations.has(at) :
-			save_string += "\n"
-			save_string += string
-			save_string += "\n" + "\n"
+			#Make sure the section actually has entries.
+			var section_location : int = section_locations.find(at)
+			var test : int = section_locations[section_location+1] - section_locations[section_location]
+			if( section_locations.size() > section_location + 1 &&
+				(section_locations[section_location+1] - section_locations[section_location]) == 1) :
+				pass
+			#The section is the last section or 
+			else :
+				save_string += "<br /> \n"
+				save_string += "\n"
+				save_string += string
+				save_string += "\n" + "\n"
+				file_to_save.store_line(save_string)
 		else :
 			save_string += string
 			save_string += "\n"
-		
-		file_to_save.store_line(save_string)
+			file_to_save.store_line(save_string)
 		
 		at += 1
 	
@@ -244,7 +253,7 @@ func _handle_output_formatting(output : PoolStringArray,
 		#Write the output for Method Descriptions.
 		var a : String = "### "+function_name
 		var b : String = "\n"+"- ● "+return_type+function_name+argument_string+"\n\n"+comment
-		var c : String = "\n\n-----\n-----\n"
+		var c : String = "\n\n<br />\n-----\n"
 		output = _store_output(output, section_locations, a+b+c, sections.Method_Descriptions)
 		
 	
