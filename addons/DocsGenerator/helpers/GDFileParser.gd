@@ -71,10 +71,10 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 				else :
 					store_lines.append(line)
 		
-			elif(line.begins_with("export") ||
-					line.begins_with("signal") ) :
+			elif(line.begins_with("export ") ||
+					line.begins_with("signal ") ) :
 				#Generate doc data.
-				save = _handle_output_formatting(save, section_locations, line)
+				save = _handle_output_formatting(save, section_locations, line + stored_comment)
 		
 			elif line.begins_with("#warning-ignore") :
 				#Skip past warning ignores.
@@ -83,7 +83,7 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 			elif store_lines.empty() :
 				last_line_was_comment = false
 		
-		#Store funcs without comments as well.
+		#Store keywords without comments as well.
 		elif line.begins_with("func ") :
 			save = _handle_output_formatting(save, section_locations, line + "#" + EMPTY_COMMENT)
 		
@@ -153,13 +153,13 @@ func _does_save_location_exist() -> bool :
 #Format the passed string and place it into the output array.
 func _handle_output_formatting(output : PoolStringArray, 
 								section_locations : Array, text : String) -> PoolStringArray :
-	if text.begins_with("func") :
-		#Get the comment at the end of the function.
-		var comment : String  = ""
-		if text.find("#") != -1 :
-			comment = text.right(text.find("#") + 1)
-			text.erase(text.find("#"), comment.length() + 1)
+	#Get the comment at the end of the text.
+	var comment : String  = ""
+	if text.find("#") != -1 :
+		comment = text.right(text.find("#") + 1)
+		text.erase(text.find("#"), comment.length() + 1)
 		
+	if text.begins_with("func ") :
 		#Get the function name.
 		text.erase(0, 4) #Erase the func from the beginning.
 		var function_name : String
@@ -256,7 +256,40 @@ func _handle_output_formatting(output : PoolStringArray,
 		var c : String = "\n\n<br />\n-----\n"
 		output = _store_output(output, section_locations, a+b+c, sections.Method_Descriptions)
 		
-	
+	elif text.begins_with("signal ") :
+		#Remove signal at the front.
+		text.erase(0,7)
+		
+		#Initialize name variable for use later.
+		var signal_name : String = ""
+		var arguments : String = ""
+		
+		#Get the signal's arguments if possible.
+		var paranthesis_begin : int = text.find("(")
+		if paranthesis_begin != -1 :
+			#Get the signal's name.
+			signal_name = text.left(paranthesis_begin)
+			
+			#Remove the trailing ) and ( and signal name.
+			text.erase(text.find(")"), 2)
+			text.erase(0, paranthesis_begin + 1)
+			
+			#Get the signal arguments.
+			arguments = text
+			text.erase(0, arguments.length())
+			
+		#The signal does not have arguments.
+		else:
+			signal_name = text
+			text.erase(0,signal_name.length())
+		
+		#Store the signal in the correct place.
+		var completed_string : String = "- "+signal_name+" ( "+arguments+" )\n"
+		completed_string += "\n"
+		completed_string += comment + "\n"
+		completed_string += "\n-----\n"
+		output = _store_output(output, section_locations, completed_string, sections.Signals)
+
 	return output
 
 #Save output to the save string.
