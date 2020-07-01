@@ -4,9 +4,7 @@ extends Node
 #Definitely go to https://www.markdownguide.org/
 #Search Tables
 #https://www.markdownguide.org/extended-syntax/
-#Hello | Good evening | Good
-#------|--------------|-----
-#What is up | I am good | Oh wow
+
 
 const EMPTY_COMMENT : String = "Somebody didn't leave a comment."
 const FILE_TYPE : String = ".docsave"
@@ -290,6 +288,43 @@ func _handle_output_formatting(output : PoolStringArray,
 		completed_string += "\n-----\n"
 		output = _store_output(output, section_locations, completed_string, sections.Signals)
 
+	elif text.begins_with("export ") :
+		#Remove export from the beginning.
+		text.erase(0, 7)
+		
+		#Get what the variable is set to.
+		var assigned_to : String = text.right(text.find("=", 0) + 1)
+		text.erase(text.find("="), assigned_to.length()+2)
+		
+		#Get what type of variable it is.
+		var property_type : String = ""
+		if text.find(":") != -1 :
+			var colon_at : int = text.find(":")
+			property_type = text.right(colon_at + 1)
+			property_type = property_type.rstrip(" ")
+			property_type = property_type.rstrip("=")
+			property_type = property_type.dedent()
+			text = text.left(colon_at)
+		
+		#Get the property name.
+		var property_name : String = text.right(4)
+		property_name = property_name.dedent()
+		property_name = property_name.rstrip(" ")
+		text = ""
+		
+		#Store the property names.
+		property_type = property_type.to_lower()
+		property_name = property_name.to_lower()
+		var linked_name : String = "["+property_name+"]"+"(#"+property_type+"-"+property_name+")"
+		var property_string : String = "[]()|[]()|[]()\n ----|-----|----\n"
+		property_string += "\\|[]()"+property_type+" |\\| "+linked_name+" |\\| "+assigned_to+"\\||\n"
+		output = _store_output(output, section_locations, property_string, sections.Properties)
+		
+		#Store the property descriptions.
+		var property_description : String = "### "+property_type+"-"+property_name+"\n\n"
+		property_description += comment+"\n"
+		property_description += "\n"+"-----\n"
+		output = _store_output(output,section_locations,property_description, sections.Property_Descriptions)
 	return output
 
 #Save output to the save string.
