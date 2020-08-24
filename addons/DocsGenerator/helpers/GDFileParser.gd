@@ -5,6 +5,13 @@ extends Node
 #Search Tables
 #https://www.markdownguide.org/extended-syntax/
 
+#What I need to take account of.
+#remote
+#puppetsync
+#mastersync
+#remotesync
+#master
+#puppet
 
 const EMPTY_COMMENT : String = "Somebody didn't leave a comment."
 const FILE_TYPE : String = ".docsave"
@@ -43,11 +50,17 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 	#Generate a doc.
 	var line : String
 	var store_lines : Array = [] #For when relevant text is over several lines.
+	var network_status : String = ""
 	var last_line_was_comment : bool = false
 	var stored_comment : String
 	while file_loader.eof_reached() == false :
 		line = file_loader.get_line()
 		line = line.dedent()
+		
+		#Get the line with networking keywords removed 
+		#and store the network features
+		network_status = _get_network_keyword(line)
+		line.erase(0,network_status.length() + 1) #Add one to account for the extra space. 
 		
 		#Generate input for doc if the next line is a func or export.
 		if last_line_was_comment :
@@ -58,14 +71,14 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 					whole_function += text
 				whole_function += line
 				if whole_function.ends_with(":") :
-					save = _handle_output_formatting(save, section_locations, whole_function + stored_comment)
+					save = _handle_output_formatting(save, section_locations, whole_function + stored_comment, network_status)
 				store_lines.clear()
 			
 			elif line.begins_with("func") :
 				#Functions can be separated between multiple line.
 				#Make sure to account for this.
 				if line.ends_with(":") :
-					save = _handle_output_formatting(save, section_locations, line + stored_comment)
+					save = _handle_output_formatting(save, section_locations, line + stored_comment, network_status)
 				else :
 					store_lines.append(line)
 		
@@ -79,16 +92,21 @@ func generate_doc_from_gd(gd_file_path : String) -> void :
 				pass
 		
 			elif store_lines.empty() :
+				network_status = ""
 				last_line_was_comment = false
 		
 		#Store keywords without comments as well.
 		elif line.begins_with("func ") :
-			save = _handle_output_formatting(save, section_locations, line + "#" + EMPTY_COMMENT)
+			save = _handle_output_formatting(save, section_locations, line + "#" + EMPTY_COMMENT, network_status)
 		
 		#Check if the line is a comment.
 		elif line.begins_with("#") && line.begins_with("#warning-ignore") == false :
 			last_line_was_comment = true
 			stored_comment = line
+		
+		#Nothing intersting in this line.
+		else :
+			network_status = ""
 	
 	#Create the docs file.
 	var file_name : String = gd_file_path.get_file()
@@ -148,15 +166,25 @@ func _does_save_location_exist() -> bool :
 	
 	return true
 
+#Return a string with the network keyword that the passed argument has. Returns an empty string if there are no network keywords.
+func _get_network_keyword(string : String) -> String :
+	if(string.begins_with("puppet ") || string.begins_with("puppetsync ") ||
+			string.begins_with("master ") || string.begins_with("mastersync ") ||
+			string.begins_with("remote ") || string.begins_with( "remotesync ")) :
+		return string.left(string.find(" "))
+	
+	return ""
+
 #Format the passed string and place it into the output array.
 func _handle_output_formatting(output : PoolStringArray, 
-								section_locations : Array, text : String) -> PoolStringArray :
+								section_locations : Array, text : String,
+								network_type : String = "") -> PoolStringArray :
 	#Get the comment at the end of the text.
 	var comment : String  = ""
 	if text.find("#") != -1 :
 		comment = text.right(text.find("#") + 1)
 		text.erase(text.find("#"), comment.length() + 1)
-		
+	
 	if text.begins_with("func ") :
 		#Get the function name.
 		text.erase(0, 4) #Erase the func from the beginning.
@@ -173,7 +201,7 @@ func _handle_output_formatting(output : PoolStringArray,
 			return_type.erase(return_type.find(":") - 1, 2)
 			text.erase(type_pointer_at, text.right(type_pointer_at).length())
 		else :
-			return_type = "value"
+			return_type = "unknown"
 			var function_end : int = text.find_last(":")
 			text.erase(function_end, text.right(function_end).length())
 		
@@ -200,7 +228,7 @@ func _handle_output_formatting(output : PoolStringArray,
 				argument_types.append(type)
 				current.erase(temp_loc, current.right(temp_loc).length())
 			else :
-				argument_types.append("value")
+				argument_types.append("unknown")
 			
 			#Get the argument name.
 			current.dedent()
@@ -250,7 +278,7 @@ func _handle_output_formatting(output : PoolStringArray,
 		
 		#Write the output for Method Descriptions.
 		var a : String = "### "+function_name
-		var b : String = "\n"+"- ● "+return_type+function_name+argument_string+"\n\n"+comment
+		var b : String = "\n"+"- ● "+return_type+" "+network_type+" "+function_name+argument_string+"\n\n"+comment
 		var c : String = "\n\n<br />\n-----\n"
 		output = _store_output(output, section_locations, a+b+c, sections.Method_Descriptions)
 		
@@ -325,6 +353,8 @@ func _handle_output_formatting(output : PoolStringArray,
 		property_description += comment+"\n"
 		property_description += "\n"+"-----\n"
 		output = _store_output(output,section_locations,property_description, sections.Property_Descriptions)
+	
+	#Add the network keywords to the front of output.
 	return output
 
 #Save output to the save string.
